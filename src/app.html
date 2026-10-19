@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			@font-face {
+				font-family: 'Vazir Code';
+				src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-code-font@v1.1.1/dist/Vazir-Code.woff2')
+					format('woff2');
+				font-weight: 400;
+				font-style: normal;
+				font-display: swap;
+			}
+			@font-face {
+				font-family: 'Vazir Code';
+				src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazir-code-font@v1.1.1/dist/Vazir-Code-Bold.woff2')
+					format('woff2');
+				font-weight: 700;
+				font-style: normal;
+				font-display: swap;
+			}
+		</style>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>
