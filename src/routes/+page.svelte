@@ -172,7 +172,7 @@
 		row-gap: 1rem;
 		align-items: start;
 		align-content: start;
-		max-width: 1200px;
+		max-width: 1000px;
 		margin: 0 auto;
 		padding: 4rem 1rem 2rem;
 	}
