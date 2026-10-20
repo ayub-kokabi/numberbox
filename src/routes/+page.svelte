@@ -1,6 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
 
+	let showModal = $state(false);
+	let accepted = $state(false);
 	let phone = $state('');
 	let loading = $state(false);
 	let error = $state('');
@@ -9,10 +11,19 @@
 	let runId = $state(0);
 
 	onMount(() => {
-		if (inputElement) {
+		if (!localStorage.getItem('nb_demo_ack')) {
+			showModal = true;
+		} else if (inputElement) {
 			inputElement.focus();
 		}
 	});
+
+	function confirmAck() {
+		if (!accepted) return;
+		localStorage.setItem('nb_demo_ack', '1');
+		showModal = false;
+		if (inputElement) inputElement.focus();
+	}
 
 	function sanitize(v) {
 		const digitsPlus = v.replace(/[^\d+]/g, '');
@@ -70,7 +81,45 @@
 	}
 </script>
 
-<main class="layout">
+{#if showModal}
+	<div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="demo-title">
+		<div class="modal" dir="rtl">
+			<h2 id="demo-title" class="modal-title">توضیح</h2>
+
+			<div class="modal-body">
+				<p>
+					این سایت برای استفادهٔ عمومی طراحی نشده و صرفاً نسخه‌ای زنده از سورس پروژه برای
+					نمایش عملکرد صحیح ارتباط
+					با سرور نامبرباکس در غیاب اپلیکیشن رسمی آن است؛ هدف این بوده که پیش از دریافت سورس پروژه، از عملکرد درست آن
+					اطمینان حاصل کنید.
+				</p>
+
+				<p>
+					نامعتبر بودن برخی پاسخ‌ها، مسئله‌ای مجزا از هدف اصلی پروژه است و دلیل آن نیز مشخص است: حجم بالای
+					درخواست‌های ارسالی از IPهای زیرساخت کلادفلر، حساسیت سرور مقصد را برانگیخته و
+					باعث تولید پاسخ‌های بی‌ربط به‌عنوان یک اقدام امنیتی شده است.
+				</p>
+
+				<p>
+					برای ارزیابی دقیق‌تر و کاهش احتمال دریافت پاسخ‌های نامعتبر، پروژه را به‌صورت
+					لوکال اجرا کنید و درخواست‌ها را به‌شکل کنترل‌شده از طریق VPN اختصاصی ارسال
+					کنید. قابل ذکر است حتی در این شرایط نیز دریافت پاسخ‌های معتبر تضمین‌شده نیست و ممکن
+					است محدودیت‌های سمت سرور اعمال شود، همچنان که در اپلیکیشن رسمی نیز این
+					موضوع وجود دارد.
+				</p>
+			</div>
+
+			<label class="modal-check">
+				<span>متوجه هستم</span>
+				<input type="checkbox" bind:checked={accepted} />
+			</label>
+
+			<button class="modal-btn" disabled={!accepted} onclick={confirmAck}>تأیید</button>
+		</div>
+	</div>
+{/if}
+
+<main class="layout" class:blurred={showModal}>
 	<header class="header">
 		<h1 class="title">NumberBox</h1>
 		<p class="subtitle">Look up names saved by others for a phone number</p>
@@ -148,7 +197,7 @@
 					{:else}
 						<div class="empty-box">
 							<div class="empty-title">No results</div>
-							<div class="empty-sub">Try again</div>
+							<div class="empty-sub">Try again with a different number</div>
 						</div>
 					{/if}
 				</div>
@@ -158,21 +207,103 @@
 </main>
 
 <style>
+	.modal-overlay {
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.85);
+		backdrop-filter: blur(4px);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 1rem;
+		z-index: 100;
+	}
+	.modal {
+		background: #111;
+		border: 1px solid #262626;
+		border-radius: 0.75rem;
+		max-width: 600px;
+		width: 100%;
+		max-height: 90vh;
+		overflow-y: auto;
+		padding: 2rem;
+		font-family: 'Vazir Code', 'JetBrains Mono', ui-monospace, monospace;
+		color: #e5e5e5;
+	}
+	.modal-title {
+		margin: 0 0 1.25rem 0;
+		font-size: 1.125rem;
+		font-weight: 700;
+		text-align: right;
+	}
+	.modal-body {
+		font-size: 0.8125rem;
+		line-height: 1.9;
+		color: #a3a3a3;
+		text-align: justify;
+	}
+	.modal-body p {
+		margin: 0 0 1rem 0;
+	}
+	.modal-check {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		margin: 1.5rem 0 1rem 0;
+		font-size: 0.8125rem;
+		color: #e5e5e5;
+		cursor: pointer;
+		flex-direction: row-reverse;
+		justify-content: flex-end;
+	}
+	.modal-check input {
+		width: 16px;
+		height: 16px;
+		accent-color: #e5e5e5;
+		cursor: pointer;
+	}
+	.modal-btn {
+		width: 100%;
+		background: #e5e5e5;
+		color: #0a0a0a;
+		border: none;
+		border-radius: 0.5rem;
+		padding: 0.75rem 1.25rem;
+		font-family: inherit;
+		font-size: 0.875rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: opacity 0.15s ease;
+	}
+	.modal-btn:hover:not(:disabled) {
+		opacity: 0.85;
+	}
+	.modal-btn:disabled {
+		background: #262626;
+		color: #525252;
+		cursor: not-allowed;
+	}
+	.blurred {
+		filter: blur(3px);
+		pointer-events: none;
+		user-select: none;
+	}
+
 	.layout {
 		min-height: 100vh;
 		background: #0a0a0a;
 		color: #e5e5e5;
 		font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
 		grid-template-areas:
 			'header .'
 			'panel results';
-		column-gap: 2rem;
+		column-gap: 1rem;
 		row-gap: 1rem;
 		align-items: start;
 		align-content: start;
-		max-width: 1000px;
+		max-width: 1200px;
 		margin: 0 auto;
 		padding: 4rem 1rem 2rem;
 	}
@@ -292,7 +423,7 @@
 	}
 	.results-panel {
 		grid-area: results;
-		justify-self: end;
+		justify-self: start;
 		width: 100%;
 		max-width: 500px;
 	}
@@ -368,6 +499,9 @@
 		.results-panel {
 			justify-self: stretch;
 			max-width: 100%;
+		}
+		.modal {
+			padding: 1.5rem;
 		}
 	}
 </style>
